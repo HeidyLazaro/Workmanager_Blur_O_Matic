@@ -36,6 +36,7 @@ import com.example.bluromatic.TAG_OUTPUT
 import com.example.bluromatic.workers.CleanupWorker
 import com.example.bluromatic.workers.SaveImageToFileWorker
 import kotlinx.coroutines.flow.mapNotNull
+import androidx.work.Constraints
 
 class WorkManagerBluromaticRepository(context: Context) : BluromaticRepository {
 
@@ -57,6 +58,9 @@ class WorkManagerBluromaticRepository(context: Context) : BluromaticRepository {
     override fun applyBlur(blurLevel: Int) {
         // Add WorkRequest to Cleanup temporary images
         //var continuation = workManager.beginWith(OneTimeWorkRequest.from(CleanupWorker::class.java))
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .build()
 
         //Esto hace que ahora Blur-O-Matic desenfoque una imagen a la vez
         var continuation = workManager
@@ -70,6 +74,7 @@ class WorkManagerBluromaticRepository(context: Context) : BluromaticRepository {
 
         // New code for input data object
         blurBuilder.setInputData(createInputDataForWorkRequest(blurLevel, imageUri))
+        blurBuilder.setConstraints(constraints)
 
         //workManager.enqueue(blurBuilder.build())
 
@@ -93,7 +98,9 @@ class WorkManagerBluromaticRepository(context: Context) : BluromaticRepository {
     /**
      * Cancel any ongoing WorkRequests
      * */
-    override fun cancelWork() {}
+    override fun cancelWork() {
+        workManager.cancelUniqueWork(IMAGE_MANIPULATION_WORK_NAME)
+    }
 
     /**
      * Creates the input data bundle which includes the blur level to
