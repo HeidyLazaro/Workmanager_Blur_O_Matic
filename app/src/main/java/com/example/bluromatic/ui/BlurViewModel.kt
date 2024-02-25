@@ -48,7 +48,7 @@ class BlurViewModel(private val bluromaticRepository: BluromaticRepository) : Vi
         val outputImageUri = info.outputData.getString(KEY_IMAGE_URI)
         when {
             info.state.isFinished && !outputImageUri.isNullOrEmpty()-> {
-                BlurUiState.Complete(outputUri = "")
+                BlurUiState.Complete(outputUri = outputImageUri)
             }
 
             info.state == WorkInfo.State.CANCELLED -> {
@@ -83,6 +83,10 @@ class BlurViewModel(private val bluromaticRepository: BluromaticRepository) : Vi
                 )
             }
         }
+    }
+
+    fun cancelWork() {
+        bluromaticRepository.cancelWork()
     }
 }
 
